@@ -26,7 +26,7 @@ workspace and runs the script.
 | file | what it is |
 | --- | --- |
 | `loader.lua` | the one-liner you paste — fetches and runs the packaged builds |
-| `build/coldwar.lua` | packed build of the script (ESP, aim, silent aim, mounted silent aim, radar, world) |
+| `build/coldwar.lua` | packed build of the script (ESP, aim, silent aim, mounted silent aim, radar, world, intel) |
 | `build/ui-template.lua` | packed build of the POLARIS panel — self-contained UI, no downloads, no links |
 
 Single-file use also works: the coldwar build falls back to fetching the panel
