@@ -1,6 +1,12 @@
 # POLARIS — Cold War
 
-Panel + gameplay script for **Cold War** (place `13687899540`).
+A script for **Cold War** (place `13687899540`) — 80-player NATO vs PACT battles with real ballistics.
+
+Everything in here was measured against the live game before it shipped. The
+silent shot is solved with the game's own trajectory maths, the mounted path
+was read out of `TurretFireController`, the helmet flag uses the same
+`Headwear` rules the game applies, and the x-ray draws the game's own
+penetration packets. Nothing is a guess.
 
 ## Load it
 
@@ -10,65 +16,139 @@ Paste this into your executor while Cold War is running:
 loadstring(game:HttpGet("https://raw.githubusercontent.com/fervidos/ColdWar/refs/heads/main/loader.lua"))()
 ```
 
-The loader downloads the current packed builds (`build/ui-template.lua` +
-`build/coldwar.lua`) from this repo, saves the panel into the executor
-workspace and runs the script.
+The loader downloads the current packed builds, saves the panel into the
+executor workspace and runs the script.
 
-- **RightShift** shows / hides the panel.
+- **RightShift** shows / hides the panel. **F1** is the panic key.
 - First run asks once whether you are on PC or phone.
-- Settings save automatically to your executor workspace (`polaris-*.txt`)
+- Settings save automatically (`polaris-*.txt` in the executor workspace)
   and are restored on the next join.
-- The panel is read from disk first, so the loader keeps it in sync on every
-  run; a cache-buster defeats the raw.githubusercontent CDN window.
+
+---
+
+## Features
+
+### 🎯 Aim — where the round lands, not where the camera looks
+
+**Silent aim — a genuinely bent shot.** Your own shot is redirected inside
+the game's volley *before* it is encoded, so the server's copy and your
+client's copy of the round are the same real trajectory — the camera never
+moves. Aim is solved for bullet drop and drag with the game's published
+`Trajectory` maths, and the arc is walked with the bullet's own raycast
+params: the shot is only redirected when it actually reaches a limb.
+
+**Hit chance, FOV in degrees, hit-part picker.** Only a chosen percentage of
+rounds bend; the rest fly exactly where you aimed with the game's own spread.
+The FOV default sits inside the range that was proven against live server
+limb health, and the slider says so.
+
+**Mounted silent aim.** The same solver for vehicle guns, driven from the
+turret's own fire params and gated by the game's `TurretRig` / `Gunner`
+contract — it only runs while you are the verified gunner. Has its own hit
+chance (default 75%) so a mounted gun that never misses doesn't look like
+one. Explosive launchers are left alone.
+
+**Camera aimbot with humanisation.** Reaction delay, wind-up ramp and a
+speed ceiling — it reads like a player flicking, not a snap. Sticky target,
+visibility-only option, and true drop/lead prediction so the camera points
+where the bullet will be, not where the target is.
+
+### 🧠 Intel — the part no other panel has
+
+**Radio interceptor.** Enemy voice lines are turned into subtitles at the
+bottom of your screen, exactly the way each player's radio/voice distance
+would distort them. `Status/Reloading` and `Status/OutOfAmmo` calls set a
+**RELOADING** flag on that player — the game's own words telling you they're
+dry. (Reads the game's `Callouts` signal; nothing is sent.)
+
+**Helmet sense.** Marks anyone still wearing a helmet — and a helmeted head
+is where headshot claims go to die, because the hat's handle eats the
+bullet. The moment the game knocks the helmet off (it really does, on head
+impacts) a **KNOCKED** flash tells you the head is now bare.
+
+**HitCam armour x-ray.** When a vehicle takes a hit, the game ships an
+encoded penetration packet — impact point, penetrator / jet / fragment lines,
+crew, module and ammo-detonation events. POLARIS decodes the same packet the
+in-game killcam uses and draws it in 3D: real round paths through the hull,
+outcome labels like `AMMO DETONATION + MODULE`, colour-coded by what was hit.
+
+**Threat monitor.** Counts how many enemies can actually see you, how many
+are currently facing you, and where the nearest one is. Includes line-of-sight
+unless you turn it off.
+
+### 👁 ESP — everything, at a glance
+
+- Boxes with outline, names, class (Sniper / AT / Medic …), distance and weapon
+- **Per-limb health**: a health bar built from all six limbs, plus exact head
+  and torso numbers (a head at 3 dies to the next hit)
+- Status flags: `DOWNED`, `SPAWN`, `DISGUISED`, `VEHICLE`, plus the intel
+  flags `HELMET`, `KNOCKED`, `RELOADING`
+- Skeleton bones, tracers, head dots
+- Visibility handling: *dim hidden* targets or *hide* them completely — your
+  call, per the situation
+- Teammates in blue, vehicle labels (manned by crew team, or empty)
+
+### 📡 Battle radar — your half of the map on one dial
+
+Rotating radar with enemy contacts, teammates, vehicles, live turret firing
+directions, and capture objectives with owner and progress. Shot pings follow
+enemy gunfire across the map and damage pings mark where you've been hit.
+The footer shows the frontline both teams are pushing.
+
+### 💥 World & utility
+
+- No fog / fullbright / no suppression blur — visual only, your screen only
+- **Launcher impact predictor**: while a supported launcher is equipped,
+  draws the real blast ring, crosshair, flight distance and arming state
+  (display-only — it never changes where the rocket goes)
+- Panic key (default `F1`) drops aim and silent instantly
+
+### 🖥 The panel itself
+
+POLARIS v4 is a self-contained tabbed panel: **HOME · ESP · AIM · SILENT ·
+MOUNTED · WORLD · RADAR · INTEL · INFO · SETTINGS**. Live status strip with a
+master switch and three counters, per-toggle save, one-click reset, and a
+remembered PC / phone layout. It fetches nothing, links nothing, and every
+control is drawn by the panel file itself.
+
+---
+
+## Safety by design
+
+The game carries a hidden anticheat that watches for resized hitboxes, body
+movers, noclip, anchored flips and the images in your GUI. This script
+changes none of those things:
+
+- the ESP is drawn **outside** the game with Drawing objects — not one part is
+  resized, and nothing is added to any character
+- the silent shot never claims a hit it didn't physically make — it bends a
+  real round and lets the normal ballistics decide
+- the panel lives outside the DataModel where the executor allows it, and the
+  detector itself is left running untouched
+- every default (FOV, hit chance) is chosen so the *behaviour* stays inside
+  what normal play produces
 
 ## Files
 
 | file | what it is |
 | --- | --- |
 | `loader.lua` | the one-liner you paste — fetches and runs the packaged builds |
-| `build/coldwar.lua` | packed build of the script (ESP, aim, silent aim, mounted silent aim, radar, world, intel) |
-| `build/ui-template.lua` | packed build of the POLARIS panel — self-contained UI, no downloads, no links |
+| `build/coldwar.lua` | packed build of the script |
+| `build/ui-template.lua` | packed build of the POLARIS panel |
 
-Single-file use also works: the coldwar build falls back to fetching the panel
-itself when the loader was not used.
+Single-file use also works: the coldwar build falls back to fetching the
+panel itself when the loader was not used.
 
 ## Builds
 
-Everything under `build/` is a **packed build**. The readable sources are kept
-private and are not published to this repository:
-
-- strings are encrypted and decoded at run time,
-- whitespace and comments are stripped,
-- the whole file is stream-coded, checksum-guarded and re-encoded.
-
-The loader refuses to run a `coldwar.lua` that does not carry the POLARIS
-markers, so a stale mirror can never come back. Rebuilding is done locally with
-`python tools/obfuscate.py`, which regenerates both files under `build/`.
-
-## Panel
-
-The panel is fully local: no changelog fetches, no bug-report form, no Discord
-link, no analytics. Every control is drawn by the packed panel build.
-
-Call surface (unchanged from older panels):
-
-```lua
-local UI  = loadstring(readfile("ui-template.lua"))()
-local win = UI.Window({ title = "COLD WAR", subtitle = "POLARIS" })
-local page = win:Page("ESP", UI.icon.eye)
-local card = page:Card("DRAW", 1)
-card:Toggle("ESP", CONFIG.esp, function(v) CONFIG.esp = v end, "hint")
-win:SetStat(1, "42", "drawn")
-```
-
-`UI.Window`, `win:Page/Refresh/SetStatus/SetStat/SetMaster/OnMaster/Destroy`,
-`page:Card`, `card:Toggle/Stepper/Slider/Dropdown/Button/Input/Label/Readout/
-Colour`, `UI.config`, `UI.sweep` and every `UI.theme.*` / `UI.icon.*` /
-`UI.font.*` key are supported.
+Everything under `build/` is a **packed build** — strings encrypted, comments
+and whitespace stripped, the whole file stream-coded and checksum-guarded.
+The readable sources are kept private and are not published here. The loader
+refuses anything that is not a POLARIS build, so a stale mirror can never
+come back.
 
 ## Updating
 
 Change the sources locally, run `python tools/obfuscate.py`, then commit and
 push the regenerated files under `build/`. The next loader run picks them up —
-the panel is fetched cache-busted and written to disk on every run, and the
-loader refuses anything that is not a POLARIS build.
+the panel is fetched cache-busted and written to disk on every run.
