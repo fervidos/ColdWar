@@ -1,0 +1,4 @@
+# private sources - never published; only the packed builds under build/ ship
+/coldwar.lua
+/ui-template.lua
+/tools/
