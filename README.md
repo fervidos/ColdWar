@@ -22,6 +22,9 @@ The loader downloads the current packed builds, saves the panel into the
 executor workspace and runs the script.
 
 - **RightShift** shows / hides the panel. **F1** is the panic key.
+- Every load opens with the **POLARIS cinematic startup** — a starfield intro
+  whose loader tracks real initialisation (game load, camera, character).
+  Click / tap to skip; it fades out into the panel when ready.
 - First run asks once whether you are on PC or phone.
 - Settings save automatically (`polaris-*.txt` in the executor workspace)
   and are restored on the next join.
