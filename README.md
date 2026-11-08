@@ -56,12 +56,12 @@ gun-mount system (`BipodController` / `BipodRig` / `MountSolver` + the
 solver, and scoped Settled stance drops the ADS spread. POLARIS spans the gap —
 `BIPOD`-flagged enemies are the ones currently planted (they carry a
 replicated `BipodAnchor` / `BipodMounted` pair, so they read as a mount, not
-a stance), a pulsing ready ring marks the exact spot the game's own Blockcast
-would plant your gun, and an optional auto-deploy calls the game's own
-`toggle()` — which the game itself gates on that same availability scan, so
-the plant can never happen where the game would not have planted it. The shot
-path is untouched by the update, so silent aim bends bipod-mounted shots
-exactly like standing ones.
+a stance), a `SETTLED` badge (crosshair + mount status) shows exactly when
+scoped on a planted gun and the spread bonus is live, and an optional
+auto-deploy calls the game's own `toggle()` — which the game itself gates on
+that same availability scan, so the plant can never happen where the game
+would not have planted it. The shot path is untouched by the update, so silent
+aim bends bipod-mounted shots exactly like standing ones.
 
 **Camera aimbot with humanisation.** Reaction delay, wind-up ramp and a
 speed ceiling — it reads like a player flicking, not a snap. Sticky target,
@@ -101,6 +101,9 @@ unless you turn it off.
 - Skeleton bones, tracers, head dots
 - Visibility handling: *dim hidden* targets or *hide* them completely — your
   call, per the situation
+- **Off-screen pointers**: edge arrows with the range in metres to enemies
+  that are currently outside your frame, so on an 80-player map you can feel
+  the flank without turning
 - Teammates in blue, vehicle labels (manned by crew team, or empty)
 
 ### 📡 Battle radar — your half of the map on one dial
