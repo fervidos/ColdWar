@@ -101,9 +101,6 @@ unless you turn it off.
 - Skeleton bones, tracers, head dots
 - Visibility handling: *dim hidden* targets or *hide* them completely — your
   call, per the situation
-- **Off-screen pointers**: edge arrows with the range in metres to enemies
-  that are currently outside your frame, so on an 80-player map you can feel
-  the flank without turning
 - Teammates in blue, vehicle labels (manned by crew team, or empty)
 
 ### 📡 Battle radar — your half of the map on one dial
