@@ -56,9 +56,7 @@ gun-mount system (`BipodController` / `BipodRig` / `MountSolver` + the
 solver, and scoped Settled stance drops the ADS spread. POLARIS spans the gap —
 `BIPOD`-flagged enemies are the ones currently planted (they carry a
 replicated `BipodAnchor` / `BipodMounted` pair, so they read as a mount, not
-a stance), a `SETTLED` badge (crosshair + mount status) shows exactly when
-scoped on a planted gun and the spread bonus is live, and an optional
-auto-deploy calls the game's own `toggle()` — which the game itself gates on
+a stance), and an optional auto-deploy calls the game's own `toggle()` — which the game itself gates on
 that same availability scan, so the plant can never happen where the game
 would not have planted it. The shot path is untouched by the update, so silent
 aim bends bipod-mounted shots exactly like standing ones.
