@@ -1,6 +1,8 @@
-# POLARIS — Cold War
+# POLARIS — Cold War [BIPODS]
 
 A script for **Cold War** (place `13687899540`) — 80-player NATO vs PACT battles with real ballistics.
+
+Latest build: **Cold War [BIPODS]** (placeVersion `8570`). Everything here was re-verified against that build live — the fire path is unchanged (`ClientFire.sLnpiWe6Dt(tool, ...)` and turret calls by weapon name), so the silent mechanisms still hold, and the new bipod system has its own integrations (BIPOD flags, a ready ring, game-gated auto-deploy).
 
 Everything in here was measured against the live game before it shipped. The
 silent shot is solved with the game's own trajectory maths, the mounted path
@@ -47,6 +49,19 @@ turret's own fire params and gated by the game's `TurretRig` / `Gunner`
 contract — it only runs while you are the verified gunner. Has its own hit
 chance (default 75%) so a mounted gun that never misses doesn't look like
 one. Explosive launchers are left alone.
+
+**Bipod support (Cold War [BIPODS], placeVersion 8570).** The update adds a
+gun-mount system (`BipodController` / `BipodRig` / `MountSolver` + the
+`Remotes.Bipod` channel): the gun anchors to the ground, aims through the
+solver, and scoped Settled stance drops the ADS spread. POLARIS spans the gap —
+`BIPOD`-flagged enemies are the ones currently planted (they carry a
+replicated `BipodAnchor` / `BipodMounted` pair, so they read as a mount, not
+a stance), a pulsing ready ring marks the exact spot the game's own Blockcast
+would plant your gun, and an optional auto-deploy calls the game's own
+`toggle()` — which the game itself gates on that same availability scan, so
+the plant can never happen where the game would not have planted it. The shot
+path is untouched by the update, so silent aim bends bipod-mounted shots
+exactly like standing ones.
 
 **Camera aimbot with humanisation.** Reaction delay, wind-up ramp and a
 speed ceiling — it reads like a player flicking, not a snap. Sticky target,
@@ -98,9 +113,11 @@ The footer shows the frontline both teams are pushing.
 ### 💥 World & utility
 
 - No fog / fullbright / no suppression blur — visual only, your screen only
-- **Launcher impact predictor**: while a supported launcher is equipped,
-  draws the real blast ring, crosshair, flight distance and arming state
-  (display-only — it never changes where the rocket goes)
+- **Launcher impact predictor**: while a supported launcher is equipped
+  (`M203` / `M16A2+M203` / `GP-25` / `AK-74+GP-25` / `RPG-7` / `RPG-7V` /
+  `M72A3` / `AT4` / `Carl Gustav` / `LAW` / `Chinalake` / `APILAS` / `RPG-18` /
+  `RPG-76`), draws the real blast ring, crosshair, flight distance and arming
+  state (display-only — it never changes where the rocket goes)
 - Panic key (default `F1`) drops aim and silent instantly
 
 ### 🖥 The panel itself
